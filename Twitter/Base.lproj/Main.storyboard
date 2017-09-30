@@ -44,10 +44,10 @@
             </objects>
             <point key="canvasLocation" x="117.59999999999999" y="123.68815592203899"/>
         </scene>
-        <!--View Controller-->
+        <!--Tweets View Controller-->
         <scene sceneID="nEg-0o-3BJ">
             <objects>
-                <viewController id="alJ-h4-e3F" sceneMemberID="viewController">
+                <viewController id="alJ-h4-e3F" customClass="TweetsViewController" customModule="Twitter" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="qZc-95-heC"/>
                         <viewControllerLayoutGuide type="bottom" id="NqZ-kG-L4K"/>
@@ -55,9 +55,32 @@
                     <view key="view" contentMode="scaleToFill" id="KDy-bx-fgA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zMW-MH-5EQ">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="sF2-po-z5R">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="sF2-po-z5R" id="XOE-OA-k4L">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" id="M0M-Jr-TIK"/>
+                    <navigationItem key="navigationItem" id="M0M-Jr-TIK">
+                        <barButtonItem key="leftBarButtonItem" title="Logout" id="Rmf-cr-fyg">
+                            <connections>
+                                <action selector="onLogoutButton:" destination="alJ-h4-e3F" id="SYk-Re-0Ot"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tSd-Pf-Lby" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -66,7 +89,7 @@
         <!--Navigation Controller-->
         <scene sceneID="9K4-SP-Wi9">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="h3B-Id-FNg" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="TweetsNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="h3B-Id-FNg" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="k4p-1N-tDC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>

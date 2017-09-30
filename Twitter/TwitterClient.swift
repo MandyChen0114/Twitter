@@ -41,6 +41,17 @@ class TwitterClient: BDBOAuth1SessionManager {
         )
     }
     
+    func logout() {
+        User.currentUser = nil
+        deauthorize()
+        
+        NotificationCenter.default.post(
+            name: User.userDidLogoutNotification,
+            object: nil
+        )
+    }
+    
+    
     func handleOpenUrl(url: URL) {
         let requestToken = BDBOAuth1Credential(queryString: url.query)
         
@@ -48,15 +59,24 @@ class TwitterClient: BDBOAuth1SessionManager {
                          method: "POST",
                          requestToken: requestToken,
                          success: { (accessToken: BDBOAuth1Credential?) in
-                            
-                            self.loginSuccess?()},
-                         failure: { (error: Error?) in
+                            self.currentAccount(
+                                success: { (user) in
+//                                    if let accessToken = accessToken {
+//                                        User.saveCurrentUser(user: user, accessToken: accessToken)
+//                                    }
+                                    User.currentUser = user
+                                    self.loginSuccess?()},
+                                failure: { (error) in
+                                    self.loginFailure?(error)
+                                })
+                        },
+                        failure: { (error: Error?) in
                             print("error: \(error?.localizedDescription ?? "unknown")")
                             if let error = error {
                                 self.loginFailure?(error)
-                            }}
+                            }
+                        }
         )
-
     }
     
     func homeTimeLine(success: @escaping ([Tweet]) -> Void, failure: @escaping (Error) -> Void) {
@@ -79,18 +99,18 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
     }
     
-    func currentAccount() {
+    func currentAccount(success:@escaping (User) -> Void, failure: @escaping (Error) -> Void ) {
         get("1.1/account/verify_credentials.json",
             parameters: nil,
             progress: nil,
             success: { (_, response: Any?) in
-                if let userDictionary = response as? NSDictionary {
+                if let userDictionary = response as? [String: AnyObject] {
                     let user = User(dictionary: userDictionary)
-                    print("name:\(user.name)")
+                    success(user)
                 }
         },
             failure: { (_, error: Error) in
-                
+                failure(error)
         })
     }
 }
