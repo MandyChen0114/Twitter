@@ -8,18 +8,22 @@
 
 import UIKit
 
-class TweetsViewController: UIViewController {
+class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    @IBOutlet weak var tableView: UITableView!
 
-    var tweets: [Tweet]!
+    var tweets = [Tweet]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 120
+        
         TwitterClient.sharedInstance?.homeTimeLine(success: { (tweets:[Tweet]) in
             self.tweets = tweets
-            for tweet in tweets {
-                print("\(tweet.text)")
-            }
+            self.tableView.reloadData()
         }, failure: { (error: Error) in
             
         })
@@ -33,15 +37,33 @@ class TweetsViewController: UIViewController {
     @IBAction func onLogoutButton(_ sender: Any) {
         TwitterClient.sharedInstance?.logout()
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
     }
-    */
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return tweets.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
+        let tweet = tweets[indexPath.section]
+        cell.tweet = tweet
+        return cell
+    }
+
+
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        switch segue.identifier! {
+//            case "composeSegue":
+//                let composeNavigationController = segue.destination as! UINavigationController
+//                let composeVC = composeNavigationController.topViewController as! ComposeViewController
+//                composeVC.delegate = self
+//            default:
+//                ()
+//        }
+//    }
+
 
 }

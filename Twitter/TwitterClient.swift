@@ -86,12 +86,8 @@ class TwitterClient: BDBOAuth1SessionManager {
             success: { (_, response: Any?) in
                 if let dictionaries = response as? [NSDictionary] {
                     
-                    let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
-                    
+                    let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)                    
                     success(tweets)
-                    for tweet in tweets {
-                        print("\(tweet.text)")
-                    }
                 }
             },
             failure: { (_, error: Error) in
@@ -112,5 +108,25 @@ class TwitterClient: BDBOAuth1SessionManager {
             failure: { (_, error: Error) in
                 failure(error)
         })
+    }
+    
+    static func convertTweetTimestamp(timestamp: Date) -> String {
+        
+        let interval = abs(timestamp.timeIntervalSinceNow)
+        
+        if interval < 60 * 60 * 24 {
+            let minutes = Int((interval / 60).truncatingRemainder(dividingBy: 60))
+            let hours = Int((interval / 3600))
+            
+            let result = (hours == 0 ? "" : "\(hours)h ") + (minutes == 0 ? "" : "\(minutes)m ")
+            return result
+        } else {
+            let formatter: DateFormatter = {
+                let format = DateFormatter()
+                format.dateFormat = "MM/dd/yy"
+                return format
+            }()
+            return formatter.string(from: timestamp)
+        }
     }
 }
