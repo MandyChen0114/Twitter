@@ -27,6 +27,8 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }, failure: { (error: Error) in
             
         })
+        
+        initRefreshControl()
     }
 
     override func didReceiveMemoryWarning() {
@@ -53,17 +55,44 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         return cell
     }
 
+    // MARK: - Pull and Refresh
+    func initRefreshControl() {
 
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        switch segue.identifier! {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
+    }
+    
+
+    func refreshControlAction(_ refreshControl: UIRefreshControl) {
+        TwitterClient.sharedInstance?.homeTimeLine(success: { (tweets:[Tweet]) in
+            self.tweets = tweets
+            self.tableView.reloadData()
+            refreshControl.endRefreshing()
+        }, failure: { (error: Error) in
+            refreshControl.endRefreshing()
+        })
+
+    }
+
+    
+    
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch segue.identifier! {
 //            case "composeSegue":
 //                let composeNavigationController = segue.destination as! UINavigationController
 //                let composeVC = composeNavigationController.topViewController as! ComposeViewController
-//                composeVC.delegate = self
-//            default:
-//                ()
-//        }
-//    }
+            case "homeToDetailSegue":
+                let detailNavigationController = segue.destination as! UINavigationController
+                let detailVC = detailNavigationController.topViewController as! TweetDetailViewController
+                let cell = sender as! TweetCell
+                detailVC.tweet = cell.tweet
+            default:
+                ()
+        }
+    }
 
 
 }

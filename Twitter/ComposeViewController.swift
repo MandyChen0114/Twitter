@@ -33,6 +33,8 @@ class ComposeViewController: UIViewController, UITextViewDelegate {
     let characterLimitThreshold = 20
     let placeholderText = "What's happening?"
     
+    var postSuccess: ((Tweet) -> Void)?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         if let user = User._currentUser {
@@ -62,9 +64,24 @@ class ComposeViewController: UIViewController, UITextViewDelegate {
     }
 
     @IBAction func onTweetButton(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
+        var parameter = [String: AnyObject]()
+        parameter["status"] = tweetText.text as AnyObject?
+        let tweetContent = tweetText.text
+        TwitterClient.sharedInstance?.postTweet(param: parameter,
+                                                success: {tweet in
+                                                    self.dismiss(animated: true) {
+                                                        self.postSuccess?(tweet)
+                                                        
+                                                    }
+                                                },
+                                                failure: {(error) in
+                                                    self.tweetText.text = tweetContent
+                                                    let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                                                    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                                                    alert.addAction(okAction)
+                                                    self.present(alert, animated: true, completion: nil)})
     }
-    
+
     func setPlaceHolderTweetText() {
         isFirstTyping = true
         tweetText.text = placeholderText

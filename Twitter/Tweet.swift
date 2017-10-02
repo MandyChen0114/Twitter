@@ -15,11 +15,12 @@ class Tweet: NSObject {
     var replyCount: Int
     var retweetCount: Int
     var favoritesCount: Int
-    var favorited: Bool?
-    var retweeted: Bool?
+    var favorited: Bool!
+    var retweeted: Bool!
     let user: User?
+    let idStr: String?
     
-    init(dictionary: NSDictionary) {
+    init(dictionary: [String: AnyObject]) {
         self.text = dictionary["text"] as? String
         self.replyCount = (dictionary["reply_count"] as? Int) ?? 0
         self.retweetCount = (dictionary["retweet_count"] as? Int) ?? 0
@@ -34,17 +35,17 @@ class Tweet: NSObject {
         
         if let userDict = dictionary["user"] as? [String: AnyObject]{
             self.user = User(dictionary: userDict)
-            print("\(self.user?.name)")
         } else {
             self.user = nil
         }
         
         
-        self.favorited = dictionary["favorited"] as? Bool
-        self.retweeted = dictionary["retweeted"] as? Bool
+        self.favorited = (dictionary["favorited"] as? Bool) ?? false
+        self.retweeted = (dictionary["retweeted"] as? Bool) ?? false
+        self.idStr = dictionary["id_str"] as? String
     }
     
-    class func tweetsWithArray(dictionaries: [NSDictionary]) -> [Tweet] {
+    class func tweetsWithArray(dictionaries: [[String: AnyObject]]) -> [Tweet] {
         var tweets = [Tweet]()
         
         for dictionary in dictionaries {

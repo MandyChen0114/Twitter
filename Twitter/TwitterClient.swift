@@ -61,9 +61,6 @@ class TwitterClient: BDBOAuth1SessionManager {
                          success: { (accessToken: BDBOAuth1Credential?) in
                             self.currentAccount(
                                 success: { (user) in
-//                                    if let accessToken = accessToken {
-//                                        User.saveCurrentUser(user: user, accessToken: accessToken)
-//                                    }
                                     User.currentUser = user
                                     self.loginSuccess?()},
                                 failure: { (error) in
@@ -84,9 +81,9 @@ class TwitterClient: BDBOAuth1SessionManager {
             parameters: nil,
             progress: nil,
             success: { (_, response: Any?) in
-                if let dictionaries = response as? [NSDictionary] {
+                if let dictionaries = response as? [[String: AnyObject]] {
                     
-                    let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)                    
+                    let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
                     success(tweets)
                 }
             },
@@ -109,6 +106,80 @@ class TwitterClient: BDBOAuth1SessionManager {
                 failure(error)
         })
     }
+    
+    func postTweet(param:[String:AnyObject],success: @escaping (Tweet) -> (Void), failure: @escaping (Error) -> Void) {
+        post("1.1/statuses/update.json",
+             parameters: param,
+             progress: nil,
+             success: { _, response in
+                if let dictionary = response as? [String: AnyObject] {
+                    let tweet = Tweet(dictionary: dictionary)
+                    success(tweet)
+                } },
+             failure: { (_, error: Error) in
+                failure(error)
+        })
+    }
+    
+    func favoriteCreate(param:[String:AnyObject],success: @escaping (Tweet) -> (Void), failure: @escaping (Error) -> Void) {
+        post("1.1/favorites/create.json",
+             parameters: param,
+             progress: nil,
+             success: { _, response in
+                if let dictionary = response as? [String: AnyObject] {
+                    let tweet = Tweet(dictionary: dictionary)
+                    success(tweet)
+                } },
+             failure: { (_, error: Error) in
+                failure(error)
+        })
+    }
+
+    func favoriteDestroy(param:[String:AnyObject],success: @escaping (Tweet) -> (Void), failure: @escaping (Error) -> Void) {
+        post("1.1/favorites/destroy.json",
+             parameters: param,
+             progress: nil,
+             success: { _, response in
+                if let dictionary = response as? [String: AnyObject] {
+                    let tweet = Tweet(dictionary: dictionary)
+                    success(tweet)
+                } },
+             failure: { (_, error: Error) in
+                failure(error)
+        })
+    }
+
+    func retweet(param:[String:AnyObject],success: @escaping (Tweet) -> (Void), failure: @escaping (Error) -> Void) {
+        let id = param["id"]!
+        post("1.1/statuses/retweet/\(id).json",
+             parameters: param,
+             progress: nil,
+             success: { _, response in
+                if let dictionary = response as? [String: AnyObject] {
+                    let tweet = Tweet(dictionary: dictionary)
+                    success(tweet)
+                } },
+             failure: { (_, error: Error) in
+                failure(error)
+        })
+    }
+    
+    func unretweet(param:[String:AnyObject],success: @escaping (Tweet) -> (Void), failure: @escaping (Error) -> Void) {
+        let id = param["id"]!
+        post("1.1/statuses/unretweet/\(id).json",
+            parameters: param,
+            progress: nil,
+            success: { _, response in
+                if let dictionary = response as? [String: AnyObject] {
+                    let tweet = Tweet(dictionary: dictionary)
+                    success(tweet)
+                } },
+            failure: { (_, error: Error) in
+                failure(error)
+        })
+    }
+
+    
     
     static func convertTweetTimestamp(timestamp: Date) -> String {
         
