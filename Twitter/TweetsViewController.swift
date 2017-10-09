@@ -12,6 +12,7 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var tableView: UITableView!
 
     var tweets = [Tweet]()
+    var menuType:String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,16 +22,43 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
         
-        TwitterClient.sharedInstance?.homeTimeLine(success: { (tweets:[Tweet]) in
-            self.tweets = tweets
-            self.tableView.reloadData()
-        }, failure: { (error: Error) in
-            
-        })
+        if(self.parent?.title == "Mentions"){
+            menuType = "Mentions"
+        } else if(self.parent?.title == "Home"){
+            menuType = "Home"
+        }
         
+        getTweets()
         initRefreshControl()
     }
 
+    func getTweets() {
+
+        if menuType == "Home" {
+            TwitterClient.sharedInstance?.homeTimeLine(success: { (tweets:[Tweet]) in
+                self.tweets = tweets
+                self.tableView.reloadData()
+            }, failure: { (error: Error) in
+                
+            })
+        } else if menuType == "Mentions" {
+            let count = 20 as AnyObject
+
+            let param =  ["count": count] as [String: AnyObject]
+            
+            TwitterClient.sharedInstance?.mentionTimeline(param: param ,success: { (tweets:[Tweet]) in
+                
+                self.tweets = tweets
+                
+                self.tableView.reloadData()
+                
+            }, failure: {(error : Error) -> () in
+                self.showError(error: error)
+                
+            })
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -75,15 +103,17 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     }
 
+    func showError(error: Error) {
+        let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alert.addAction(okAction)
+        self.present(alert, animated: true, completion: nil)
+    }
     
-    
-    
+
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.identifier! {
-//            case "composeSegue":
-//                let composeNavigationController = segue.destination as! UINavigationController
-//                let composeVC = composeNavigationController.topViewController as! ComposeViewController
             case "homeToDetailSegue":
                 let detailNavigationController = segue.destination as! UINavigationController
                 let detailVC = detailNavigationController.topViewController as! TweetDetailViewController

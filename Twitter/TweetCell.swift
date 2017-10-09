@@ -21,9 +21,10 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var replyImage: UIImageView!
     @IBOutlet weak var retweetImage: UIImageView!
     @IBOutlet weak var favoriteImage: UIImageView!
+    @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var descriptionImageView: UIImageView!
     
-    
-    
+    private var profileNavController:ProfileViewController!
     var avatarURL : URL?
     
     var tweet: Tweet! {
@@ -63,6 +64,11 @@ class TweetCell: UITableViewCell {
                 retweetImage.image = UIImage(named: "retweet")
             }
             
+            let avatarTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
+            avatarImage.isUserInteractionEnabled = true
+            avatarImage.addGestureRecognizer(avatarTapGestureRecognizer)
+
+            
             
             let favoriteTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
             favoriteImage.isUserInteractionEnabled = true
@@ -72,6 +78,28 @@ class TweetCell: UITableViewCell {
             retweetImage.isUserInteractionEnabled = true
             retweetImage.addGestureRecognizer(retweetTapGestureRecognizer)
             
+            if(tweet.tweetType == TweetType.Retweet){
+                if(tweet.retweeted!){
+                    descriptionLabel.text = "You retweeted"
+                    descriptionImageView.image = UIImage(named: "retweeted")
+                }
+                else{
+                    descriptionLabel.text =  "\((tweet.retweetedUser?.name)!) retweeted"
+                    descriptionImageView.image = UIImage(named: "retweet")
+                }
+                
+                descriptionLabel.isHidden = false
+                descriptionImageView.isHidden = false
+            } else if(tweet.tweetType == TweetType.Reply){
+                descriptionLabel.text = "In reply to " + tweet.inReplyToScreenName!
+                descriptionImageView.image = UIImage(named: "reply")
+                descriptionLabel.isHidden = false
+                descriptionImageView.isHidden = false
+            } else{
+                descriptionLabel.text = ""
+                descriptionLabel.isHidden = true
+                descriptionImageView.isHidden = true
+            }
         }
     }
     
@@ -90,7 +118,7 @@ class TweetCell: UITableViewCell {
     func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
         let tappedImage = tapGestureRecognizer.view as! UIImageView
-        
+
         if tappedImage.tag == 1 {
             var param = [String: AnyObject]()
             param["id"] = tweet.idStr as AnyObject?
@@ -133,6 +161,12 @@ class TweetCell: UITableViewCell {
                 }, failure: { (error) in
                 })
             }
+        } else if tappedImage.tag == 3 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            profileNavController = storyboard.instantiateViewController(withIdentifier: "ProfileViewController") as! ProfileViewController
+            profileNavController.user = tweet.user
+            profileNavController.title = "Profile"
+            (window?.rootViewController as! HamburgerViewController).contentViewController = profileNavController
         }
     }
 

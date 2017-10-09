@@ -8,6 +8,10 @@
 
 import UIKit
 
+enum TweetType: String {
+    case Retweet, Reply, Original
+}
+
 class Tweet: NSObject {
     
     let text: String?
@@ -17,8 +21,12 @@ class Tweet: NSObject {
     var favoritesCount: Int
     var favorited: Bool!
     var retweeted: Bool!
-    let user: User?
+    var user: User?
     let idStr: String?
+    var retweetedStatus:NSDictionary?
+    var inReplyToScreenName:String?
+    var tweetType:TweetType?
+    var retweetedUser:User?
     
     init(dictionary: [String: AnyObject]) {
         self.text = dictionary["text"] as? String
@@ -43,6 +51,20 @@ class Tweet: NSObject {
         self.favorited = (dictionary["favorited"] as? Bool) ?? false
         self.retweeted = (dictionary["retweeted"] as? Bool) ?? false
         self.idStr = dictionary["id_str"] as? String
+        
+        inReplyToScreenName = dictionary["in_reply_to_screen_name"] as? String
+        retweetedStatus = dictionary["retweeted_status"] as? NSDictionary
+        
+        if(retweetedStatus != nil){
+            tweetType = TweetType.Retweet
+            retweetedUser = user
+            user = User(dictionary: (retweetedStatus!["user"] as! [String : AnyObject]))
+        } else if(inReplyToScreenName != nil){
+            tweetType = TweetType.Reply
+        } else {
+            tweetType = TweetType.Original
+        }
+
     }
     
     class func tweetsWithArray(dictionaries: [[String: AnyObject]]) -> [Tweet] {

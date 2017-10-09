@@ -29,7 +29,14 @@ class LoginViewController: UIViewController {
         if let client = TwitterClient.sharedInstance {
             client.login(
                 success: {
-                    self.performSegue(withIdentifier: "loginSegue", sender: nil)},
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    let hamburgerVC = storyboard.instantiateViewController(withIdentifier: "HamburgerViewController") as! HamburgerViewController
+                    let menuVC = storyboard.instantiateViewController(withIdentifier: "MenuViewController") as! MenuViewController
+                    
+                    menuVC.hamburgerViewController = hamburgerVC
+                    hamburgerVC.menuViewController = menuVC
+                    
+                    self.present(hamburgerVC, animated: true, completion: nil)},
                 failure: { (error) in
                     print(error.localizedDescription)}
             )

@@ -179,7 +179,42 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
     }
 
-    
+    func userTimeline(param:[String:AnyObject], success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()){
+        
+        get("1.1/statuses/user_timeline.json",
+            parameters: param,
+            progress: nil,
+            success: { _, response in
+                if let dictionaries = response as? [[String: AnyObject]] {
+                    
+                    let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
+                    success(tweets)
+                }
+        },
+            failure: { (_, error: Error) in
+                failure(error)
+
+        })
+    }
+
+    func mentionTimeline(param:[String:AnyObject], success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()){
+        
+        get("1.1/statuses/mentions_timeline.json",
+            parameters: param,
+            progress: nil,
+            success: { _, response in
+                if let dictionaries = response as? [[String: AnyObject]] {
+                    
+                    let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
+                    success(tweets)
+                }
+        },
+            failure: { (_, error: Error) in
+                failure(error)
+                
+        })
+    }
+
     
     static func convertTweetTimestamp(timestamp: Date) -> String {
         

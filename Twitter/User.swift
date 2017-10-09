@@ -14,6 +14,10 @@ class User: NSObject {
     let screenName: String?
     let profileUrl: URL?
     let tagline: String?
+    let bannerImageUrl: URL?
+    let userID:Int64!
+    var followersCount = 0
+    var followingCount = 0
     
     var dictionary: [String: AnyObject]
     
@@ -26,7 +30,18 @@ class User: NSObject {
         } else {
             profileUrl = nil
         }
+        if let bannerImageUrlStr = dictionary["profile_banner_url"] as? String {
+            bannerImageUrl = URL(string: bannerImageUrlStr)
+        } else {
+            bannerImageUrl = nil
+        }
+
         tagline = dictionary["description"] as? String
+        
+        let userIDStr = dictionary["id"]!
+        userID = (userIDStr as! NSNumber).int64Value
+        followersCount = (dictionary["followers_count"] as? Int) ?? 0
+        followingCount = (dictionary["friends_count"] as? Int) ?? 0
     }
     
     static let userDidLogoutNotification = Notification.Name("UserDidLogout")
